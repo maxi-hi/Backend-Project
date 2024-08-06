@@ -1,0 +1,19 @@
+<h1>Real-Time Product List</h1>
+<ul id="product-list">
+    {{#each products}}
+        <li>{{this.name}} - {{this.price}}</li>
+    {{/each}}
+</ul>
+
+<h2>Add Product</h2>
+<form id="add-product-form">
+    <input type="text" name="name" placeholder="Product Name" required>
+    <input type="number" name="price" placeholder="Product Price" required>
+    <button type="submit">Add</button>
+</form>
+
+<h2>Delete Product</h2>
+<form id="delete-product-form">
+    <input type="text" name="productId" placeholder="Product ID" required>
+    <button type="submit">Delete</button>
+</form>
