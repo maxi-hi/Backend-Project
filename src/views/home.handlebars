@@ -1,7 +1,8 @@
-<h1>Product List</h1>
-<ul>
-    {{#each products}}
-        <li>{{this.name}} - {{this.price}}</li>
-    {{/each}}
-</ul>
-
+<div class="container mt-5">
+    <h1 class="mb-4">Product List</h1>
+    <ul class="list-group">
+        {{#each products}}
+            <li class="list-group-item">{{this.title}} - ${{this.price}}</li>
+        {{/each}}
+    </ul>
+</div>

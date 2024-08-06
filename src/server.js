@@ -3,6 +3,7 @@ const { create } = require('express-handlebars');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,13 +18,22 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Endpoints para las vistas
+// Función para leer productos desde el archivo JSON
+const getProducts = () => {
+    const data = fs.readFileSync(path.join(__dirname, '..', 'data', 'products.json'), 'utf-8');
+    return JSON.parse(data);
+};
+
+// Ruta para la vista principal
 app.get('/', (req, res) => {
-    res.render('home', { title: 'Home', products: [] }); // Aquí deberías pasar la lista de productos reales
+    const products = getProducts();
+    res.render('home', { title: 'Home', products });
 });
 
+// Ruta para la vista de productos en tiempo real
 app.get('/realtimeproducts', (req, res) => {
-    res.render('realTimeProducts', { title: 'Real-Time Products', products: [] }); // Aquí también
+    const products = getProducts();
+    res.render('realTimeProducts', { title: 'Real-Time Products', products });
 });
 
 // Manejo de websockets
@@ -31,18 +41,23 @@ io.on('connection', (socket) => {
     console.log('a user connected');
 
     // Enviar lista de productos actualizada
-    socket.emit('updateProducts', { products: [] }); // Aquí también
+    const products = getProducts();
+    socket.emit('updateProducts', { products });
 
     socket.on('newProduct', (product) => {
         // Lógica para añadir producto a la lista
-        // Luego emitir el evento para actualizar la lista
-        io.emit('updateProducts', { products: [] }); // Aquí también
+        const products = getProducts();
+        products.push(product);
+        fs.writeFileSync(path.join(__dirname, '..', 'data', 'products.json'), JSON.stringify(products, null, 2));
+        io.emit('updateProducts', { products });
     });
 
     socket.on('deleteProduct', (productId) => {
         // Lógica para eliminar producto de la lista
-        // Luego emitir el evento para actualizar la lista
-        io.emit('updateProducts', { products: [] }); // Aquí también
+        let products = getProducts();
+        products = products.filter(p => p.id !== productId);
+        fs.writeFileSync(path.join(__dirname, '..', 'data', 'products.json'), JSON.stringify(products, null, 2));
+        io.emit('updateProducts', { products });
     });
 });
 
